@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Prime number</title>
+  <script src="//unpkg.com/mithril/mithril.js"></script>
+  <script src="//unpkg.com/mithril-stream"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      const component = {
+        oninit: vnode => {
+          this.primes = m.stream([])
+          const sse = new EventSource('/prime')
+          sse.onmessage = event => {
+            this.primes().splice(0, 0, JSON.parse(event.data))
+            m.redraw()
+          }
+        },
+        view: () => {
+          return m("div", [
+            m("ul", this.primes().map(prime => (
+              m("li", { key: prime.id }, prime.number)
+            )))
+          ])
+        }
+      }
+      m.mount(document.getElementById('root'), component)
+    })
+  </script>
+</body>
+</html>
